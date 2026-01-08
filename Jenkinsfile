@@ -12,6 +12,7 @@ pipeline {
 
     stage('Test') {
       steps {
+        sh 'python3 -m venv .venv'
         sh 'python3 -m pip install --upgrade pip'
         sh 'pip install -r requirements.txt'
         sh 'pytest -q'
