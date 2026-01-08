@@ -12,11 +12,13 @@ pipeline {
 
     stage('Test') {
       steps {
-        sh 'python3 -m venv .venv'
-        sh 'source .venv/bin/activate'
-        sh 'python3 -m pip install --upgrade pip'
-        sh 'pip install -r requirements.txt'
-        sh 'pytest -q'
+        sh '''
+        python3 -m venv .venv
+        . .venv/bin/activate
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pytest -q
+        '''
       }
     }
 
