@@ -41,10 +41,23 @@ pipeline {
     stage('Deploy') {
       steps {
         sh """
-          docker rm -f ${CONTAINER_NAME} || true
-          docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${APP_PORT} ${DOCKERHUB_REPO}:latest
-          docker ps --filter "name=${CONTAINER_NAME}"
-          curl -s http://localhost:${HOST_PORT}/health
+            docker rm -f ${CONTAINER_NAME} || true
+            docker run -d --name ${CONTAINER_NAME} -p ${HOST_PORT}:${APP_PORT} ${DOCKERHUB_REPO}:latest
+            docker ps --filter "name=${CONTAINER_NAME}"
+            
+            echo "Waiting for app to be ready..."
+            for i in \$(seq 1 20); do
+                if curl -fsS http://localhost:8081/health > /dev/null; then
+                echo "App is ready!"
+                break
+                fi
+                sleep 1
+            done
+
+            # Check one last time (and fail with logs if still not ready)
+            curl -fsS http://localhost:8081/health
+            echo
+            docker ps --filter name=dath3_flask_cicd_app
         """
       }
     }
